@@ -1,42 +1,56 @@
 package main
 
 import (
-	"log"
+	"github.com/gotk3/gotk3/cairo"
+	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
 )
 
+const (
+	KEY_LEFT  uint = 65361
+	KEY_UP    uint = 65362
+	KEY_RIGHT uint = 65363
+	KEY_DOWN  uint = 65364
+)
+
 func main() {
-	// Инициализируем GTK.
 	gtk.Init(nil)
 
-	// Создаём окно верхнего уровня, устанавливаем заголовок
-	// И соединяем с сигналом "destroy" чтобы можно было закрыть
-	// приложение при закрытии окна
-	win, err := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
-	if err != nil {
-		log.Fatal("Не удалось создать окно:", err)
-	}
-	win.SetTitle("Простой пример")
-	win.Connect("destroy", func() {
-		gtk.MainQuit()
-	})
-
-	// Создаём новую метку чтобы показать её в окне
-	l, err := gtk.LabelNew("Привет, gotk3!")
-	if err != nil {
-		log.Fatal("Не удалось создать метку:", err)
-	}
-
-	// Добавляем метку в окно
-	win.Add(l)
-
-	// Устанавливаем размер окна по умолчанию
-	win.SetDefaultSize(800, 600)
-
-	// Отображаем все виджеты в окне
+	// gui boilerplate
+	win, _ := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
+	da, _ := gtk.DrawingAreaNew()
+	win.SetDefaultSize(260, 600)
+	win.Add(da)
+	win.SetTitle("Arrow keys")
+	win.Connect("destroy", gtk.MainQuit)
 	win.ShowAll()
 
-	// Выполняем главный цикл GTK (для отрисовки). Он остановится когда
-	// выполнится gtk.MainQuit()
+	// Data
+	unitSize := 20.0
+	x := 5.0
+	y := 5.0
+	keyMap := map[uint]func(){
+		KEY_LEFT:  func() { x-- },
+		KEY_UP:    func() { y-- },
+		KEY_RIGHT: func() { x++ },
+		KEY_DOWN:  func() { y++ },
+	}
+
+	// Event handlers
+	da.Connect("draw", func(da *gtk.DrawingArea, cr *cairo.Context) {
+		cr.SetSourceRGB(0, 0, 255)
+		cr.Rectangle(x*unitSize, y*unitSize, unitSize, unitSize)
+		cr.Rectangle(x*unitSize+unitSize, y*unitSize, unitSize, unitSize)
+		cr.Rectangle(x*unitSize+(unitSize*2), y*unitSize, unitSize, unitSize)
+		cr.Fill()
+	})
+	win.Connect("key-press-event", func(win *gtk.Window, ev *gdk.Event) {
+		keyEvent := &gdk.EventKey{ev}
+		if move, found := keyMap[keyEvent.KeyVal()]; found {
+			move()
+			win.QueueDraw()
+		}
+	})
+
 	gtk.Main()
 }
