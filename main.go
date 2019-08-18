@@ -13,6 +13,20 @@ const (
 	KEY_DOWN  uint = 65364
 )
 
+var unitSize = 20.0
+var x = 5.0
+var y = 5.0
+var rotate = 0
+
+type figure struct {
+	coords [4]figureOnePos
+	color  [3]float64
+}
+
+type figureOnePos struct {
+	positions [4] string
+}
+
 func main() {
 	gtk.Init(nil)
 
@@ -21,28 +35,33 @@ func main() {
 	da, _ := gtk.DrawingAreaNew()
 	win.SetDefaultSize(260, 600)
 	win.Add(da)
-	win.SetTitle("Arrow keys")
+	win.SetTitle("tetris")
 	win.Connect("destroy", gtk.MainQuit)
 	win.ShowAll()
 
 	// Data
-	unitSize := 20.0
-	x := 5.0
-	y := 5.0
 	keyMap := map[uint]func(){
 		KEY_LEFT:  func() { x-- },
-		KEY_UP:    func() { y-- },
+		KEY_UP:    func() {
+			if rotate >= 3 {
+				rotate = 0
+			} else {
+				rotate++
+			}
+		},
 		KEY_RIGHT: func() { x++ },
-		KEY_DOWN:  func() { y++ },
+		KEY_DOWN:  func() {
+			if rotate <= 0 {
+				rotate = 3
+			} else {
+				rotate--
+			}
+		},
 	}
 
 	// Event handlers
 	da.Connect("draw", func(da *gtk.DrawingArea, cr *cairo.Context) {
-		cr.SetSourceRGB(0, 0, 255)
-		cr.Rectangle(x*unitSize, y*unitSize, unitSize, unitSize)
-		cr.Rectangle(x*unitSize+unitSize, y*unitSize, unitSize, unitSize)
-		cr.Rectangle(x*unitSize+(unitSize*2), y*unitSize, unitSize, unitSize)
-		cr.Fill()
+		cr = fig2(cr)
 	})
 	win.Connect("key-press-event", func(win *gtk.Window, ev *gdk.Event) {
 		keyEvent := &gdk.EventKey{ev}
