@@ -52,13 +52,13 @@ func fig1(cr *cairo.Context) *cairo.Context {
 	for _, cell := range figure1.coords[rotate].positions {
 
 		cellCoords := strings.Split(cell, ".")
-		tmpX, _ := strconv.ParseFloat(cellCoords[0], 64)
-		tmpY, _ := strconv.ParseFloat(cellCoords[1], 64)
-		cr.Rectangle(x*unitSize + ( tmpX * unitSize), y*unitSize + (tmpY * unitSize), unitSize, unitSize)
-
+		tmpX, _ := strconv.Atoi(cellCoords[0])
+		tmpY, _ := strconv.Atoi(cellCoords[1])
+		cr.Rectangle(float64(x*unitSize + ( tmpX * unitSize)), float64(y*unitSize + (tmpY * unitSize)), float64(unitSize), float64(unitSize))
 	}
 
 	cr.Fill()
+	figureNow = figure1
 	return cr
 }
 
@@ -107,12 +107,13 @@ func fig2(cr *cairo.Context) *cairo.Context {
 	for _, cell := range figure1.coords[rotate].positions {
 
 		cellCoords := strings.Split(cell, ".")
-		tmpX, _ := strconv.ParseFloat(cellCoords[0], 64)
-		tmpY, _ := strconv.ParseFloat(cellCoords[1], 64)
-		cr.Rectangle(x*unitSize + ( tmpX * unitSize), y*unitSize + (tmpY * unitSize), unitSize, unitSize)
+		tmpX, _ := strconv.Atoi(cellCoords[0])
+		tmpY, _ := strconv.Atoi(cellCoords[1])
+		cr.Rectangle(float64(x*unitSize + ( tmpX * unitSize)), float64(y*unitSize + (tmpY * unitSize)), float64(unitSize), float64(unitSize))
 
 	}
 
 	cr.Fill()
+	figureNow = figure1
 	return cr
 }
