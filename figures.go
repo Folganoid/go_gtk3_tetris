@@ -126,10 +126,10 @@ func initFigures(colors figureColors) map[int]figure {
 	// XXXX
 	//
 	coords0 = figureOnePos{}
-	coords0.positions[0] = "0.0"
-	coords0.positions[1] = "0.1"
-	coords0.positions[2] = "0.2"
-	coords0.positions[3] = "0.3"
+	coords0.positions[0] = "1.0"
+	coords0.positions[1] = "1.1"
+	coords0.positions[2] = "1.2"
+	coords0.positions[3] = "1.3"
 
 	coords1 = figureOnePos{}
 	coords1.positions[0] = "0.1"
@@ -138,10 +138,10 @@ func initFigures(colors figureColors) map[int]figure {
 	coords1.positions[3] = "3.1"
 
 	coords2 = figureOnePos{}
-	coords2.positions[0] = "0.0"
-	coords2.positions[1] = "0.1"
-	coords2.positions[2] = "0.2"
-	coords2.positions[3] = "0.3"
+	coords2.positions[0] = "1.0"
+	coords2.positions[1] = "1.1"
+	coords2.positions[2] = "1.2"
+	coords2.positions[3] = "1.3"
 
 	coords3 = figureOnePos{}
 	coords3.positions[0] = "0.1"

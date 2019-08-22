@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gotk3/gotk3/cairo"
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
@@ -21,9 +20,10 @@ const (
 const unitSize = 20
 const fieldSizeX = 260
 const fieldSizeY = 600
+const fieldSizeXboard = 200
 
-var x = 0
-var y = 10
+var x = 5
+var y = 0
 var speed = 500
 var rotate = 0
 var figureNow figure
@@ -31,29 +31,6 @@ var figuresArr  map[int]figure
 var colors figureColors
 
 var field = [fieldSizeY/unitSize][fieldSizeX/unitSize]int{}
-
-
-func checkPosDown(xCrd int, yCrd int, fig figure) bool {
-
-	for _, cell := range fig.coords[rotate].positions {
-
-		cellCoords := strings.Split(cell, ".")
-		tmpX, _ := strconv.Atoi(cellCoords[0])
-		tmpX += xCrd
-		tmpY, _ := strconv.Atoi(cellCoords[1])
-		tmpY += yCrd
-
-		if tmpY + 1 >= fieldSizeY/unitSize || field[tmpY+1][tmpX] > 0 {
-			addFigureToField(xCrd, yCrd, fig, rotate)
-			speed = 500
-			setFigure(figuresArr)
-			return false
-		}
-	}
-
-	return true
-
-}
 
 /**
 * add figure to field
@@ -66,22 +43,17 @@ func addFigureToField(xCrd int, yCrd int, fig figure, rotate int) {
 		tmpX += xCrd
 		tmpY, _ := strconv.Atoi(cellCoords[1])
 		tmpY += yCrd
-		fmt.Println(tmpY, tmpX)
 		field[tmpY][tmpX] = fig.color
 	}
-
-	fmt.Println(figure{})
 }
 
 func drawField(cr *cairo.Context) *cairo.Context {
-
 
 	for i:=0; i<len(field);i++{
 		for z:=0; z<len(field[i]);z++{
 			if field[i][z] > 0 {
 				cr.SetSourceRGB(colors.list[field[i][z]].red, colors.list[field[i][z]].green, colors.list[field[i][z]].blue)
 				cr.Rectangle(float64(z*unitSize), float64(i*unitSize), float64(unitSize), float64(unitSize))
-				fmt.Println(colors.list[field[i][z]].red, colors.list[field[i][z]].blue, colors.list[field[i][z]].blue)
 				cr.Fill()
 			}
 		}
@@ -106,9 +78,11 @@ func main() {
 	setFigure(figuresArr)
 
 	// gui boilerplate
+
 	win, _ := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
 	da, _ := gtk.DrawingAreaNew()
-	win.SetDefaultSize(fieldSizeX, fieldSizeY)
+
+	win.SetDefaultSize(fieldSizeX + fieldSizeXboard, fieldSizeY)
 	win.Add(da)
 	win.SetTitle("Tetris")
 	win.Connect("destroy", gtk.MainQuit)
@@ -116,15 +90,21 @@ func main() {
 
 	// Data
 	keyMap := map[uint]func(){
-		KEY_LEFT:  func() { x-- },
+		KEY_LEFT:  func() {
+			if checkLeftRight(x, y, figureNow, "left") {x--}
+	},
+		KEY_RIGHT: func() {
+			if checkLeftRight(x, y, figureNow, "right") {x++}
+	},
+
 		KEY_UP:    func() {
 			if rotate >= 3 {
 				rotate = 0
 			} else {
-				rotate++
+
+				if checkRotate(x, y, figureNow, rotate + 1) { rotate++ }
 			}
 		},
-		KEY_RIGHT: func() { x++ },
 		KEY_DOWN:  func() {
 			speed = 25
 		},
@@ -132,6 +112,13 @@ func main() {
 
 	// Event handlers
 	da.Connect("draw", func(da *gtk.DrawingArea, cr *cairo.Context) {
+		cr.SetSourceRGB(0.1, 0.1, 0.1)
+		cr.Rectangle(0.0, 0.0, fieldSizeX, fieldSizeY)
+		cr.Fill()
+		cr.SetSourceRGB(0.2, 0.2, 0.2)
+		cr.Rectangle(fieldSizeX, 0.0, fieldSizeXboard, fieldSizeY)
+		cr.Fill()
+
 		cr = drawFigure(cr, figureNow)
 		cr = drawField(cr)
 	})
@@ -152,13 +139,12 @@ func main() {
 			}
 
 			if  !checkPosDown(x,y,figureNow) {
-				fmt.Println("+++++++++++++")
-				x = 0
-				y = 10
+				x = 5
+				y = 0
 			}
 
-			time.Sleep(time.Duration(speed) * time.Millisecond)
 			y++
+			time.Sleep(time.Duration(speed) * time.Millisecond)
 			win.QueueDraw()
 
 		}
