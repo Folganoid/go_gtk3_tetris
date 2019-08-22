@@ -5,6 +5,7 @@ import (
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
 	"math/rand"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -142,6 +143,9 @@ func main() {
 				x = 5
 				y = 0
 			}
+			if !checkFull(figureNow) {
+				os.Exit(1)
+			}
 
 			y++
 			time.Sleep(time.Duration(speed) * time.Millisecond)
@@ -149,8 +153,6 @@ func main() {
 
 		}
 	}()
-
-
 
 	gtk.Main()
 }

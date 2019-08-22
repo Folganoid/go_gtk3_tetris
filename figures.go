@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gotk3/gotk3/cairo"
 	"strconv"
 	"strings"
@@ -162,7 +161,6 @@ func initFigures(colors figureColors) map[int]figure {
 
 }
 
-
 /**
 * XXX
 *   X
@@ -170,9 +168,6 @@ func initFigures(colors figureColors) map[int]figure {
 func drawFigure(cr *cairo.Context, figure1 figure) *cairo.Context {
 
 	cr.SetSourceRGB(colors.list[figure1.color].red, colors.list[figure1.color].green, colors.list[figure1.color].blue)
-
-	fmt.Println(rotate)
-	fmt.Println(figure1.coords[rotate].positions)
 
 	for _, cell := range figure1.coords[rotate].positions {
 

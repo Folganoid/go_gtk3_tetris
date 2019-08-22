@@ -5,6 +5,9 @@ import (
 	"strings"
 )
 
+/**
+check bottom position
+ */
 func checkPosDown(xCrd int, yCrd int, fig figure) bool {
 
 	for _, cell := range fig.coords[rotate].positions {
@@ -27,6 +30,30 @@ func checkPosDown(xCrd int, yCrd int, fig figure) bool {
 	return true
 }
 
+/**
+* game over
+ */
+func checkFull(fig figure) bool {
+
+	for _, cell := range fig.coords[rotate].positions {
+
+		cellCoords := strings.Split(cell, ".")
+		tmpX, _ := strconv.Atoi(cellCoords[0])
+		tmpX += x
+		tmpY, _ := strconv.Atoi(cellCoords[1])
+		tmpY += y
+
+		if field[tmpY][tmpX] > 0 {
+			return false
+		}
+	}
+
+	return true
+}
+
+/**
+pre check left right position
+ */
 func checkLeftRight(xCrd int, yCrd int, fig figure, key string) bool {
 
 	var add int
@@ -52,6 +79,9 @@ func checkLeftRight(xCrd int, yCrd int, fig figure, key string) bool {
 	return true
 }
 
+/**
+precheck rotate position
+ */
 func checkRotate(xCrd int, yCrd int, fig figure, rotateFuture int) bool {
 
 	if rotateFuture >= 5 {rotateFuture = 1}
@@ -74,6 +104,9 @@ func checkRotate(xCrd int, yCrd int, fig figure, rotateFuture int) bool {
 	return true
 }
 
+/**
+check filled rows
+ */
 func checkFillRows() {
 
 	for i := 0 ; i < len(field) ; i++ {
@@ -91,6 +124,9 @@ func checkFillRows() {
 	}
 }
 
+/**
+delete filled row
+ */
 func deleteRow(row int) {
 	for i := row ; i >= 1 ; i-- {
 		field[i] = field[i-1]
