@@ -5,7 +5,6 @@ import (
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
 	"math/rand"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -25,9 +24,17 @@ const fieldSizeXboard = 200
 
 var x = 5
 var y = 0
-var speed = 500
+var gameLevel int
+var linesCount int
+var scores int
+
+var speedStart = 500
+var speedLevelChangePercent = 10
+var speedFall = speedStart
 var rotate = 0
 var figureNow figure
+var figureNext figure
+
 var figuresArr  map[int]figure
 var colors figureColors
 
@@ -63,10 +70,17 @@ func drawField(cr *cairo.Context) *cairo.Context {
 }
 
 func setFigure(figuresArr map[int]figure) {
-	figureNow = figuresArr[rand.Intn(len(figuresArr) - 0) + 0]
+
+	if figureNext == (figure{}) { figureNext = figuresArr[rand.Intn(len(figuresArr) - 0) + 0]}
+
+	figureNow = figureNext
+	figureNext = figuresArr[rand.Intn(len(figuresArr) - 0) + 0]
 }
 
 func main() {
+
+	gameLevel = 0
+	linesCount = 0
 
 	gtk.Init(nil)
 
@@ -81,12 +95,16 @@ func main() {
 	// gui boilerplate
 
 	win, _ := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
+	win.SetDefaultSize(fieldSizeX + fieldSizeXboard, fieldSizeY)
+
 	da, _ := gtk.DrawingAreaNew()
 
-	win.SetDefaultSize(fieldSizeX + fieldSizeXboard, fieldSizeY)
 	win.Add(da)
 	win.SetTitle("Tetris")
 	win.Connect("destroy", gtk.MainQuit)
+
+	win.SetModal(true)
+
 	win.ShowAll()
 
 	// Data
@@ -107,7 +125,7 @@ func main() {
 			}
 		},
 		KEY_DOWN:  func() {
-			speed = 25
+			speedFall = 25
 		},
 	}
 
@@ -122,6 +140,22 @@ func main() {
 
 		cr = drawFigure(cr, figureNow)
 		cr = drawField(cr)
+
+		cr.SetFontSize(20)
+		cr.SetSourceRGB(1, 1, 1)
+		cr.MoveTo(280, 100)
+		cr.ShowText("Level: " + strconv.Itoa(gameLevel))
+		cr.MoveTo(280, 120)
+		cr.ShowText("Lines: " + strconv.Itoa(linesCount))
+		cr.MoveTo(280, 140)
+		cr.ShowText("Speed: " + strconv.Itoa(speedFall))
+		cr.MoveTo(280, 180)
+		cr.ShowText("Scores: " + strconv.Itoa(scores))
+
+		cr.MoveTo(300, 280)
+		cr.ShowText("Next figure:")
+		cr = drawFigureNext(cr, figureNext)
+
 	})
 
 	win.Connect("key-press-event", func(win *gtk.Window, ev *gdk.Event) {
@@ -144,11 +178,25 @@ func main() {
 				y = 0
 			}
 			if !checkFull(figureNow) {
-				os.Exit(1)
+
+				da.Connect("draw", func(da *gtk.DrawingArea, cr *cairo.Context) {
+
+					cr.SetSourceRGB(0, 0, 0)
+					cr.Rectangle(80, 250, 300, -50)
+					cr.Fill()
+					cr.SetFontSize(48)
+					cr.SetSourceRGB(255, 0, 0)
+					cr.MoveTo(100, 240)
+					cr.ShowText("Game over")
+					cr = drawFigureNext(cr, figureNext)
+
+				})
+
+				return
 			}
 
 			y++
-			time.Sleep(time.Duration(speed) * time.Millisecond)
+			time.Sleep(time.Duration(speedFall) * time.Millisecond)
 			win.QueueDraw()
 
 		}

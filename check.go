@@ -20,9 +20,11 @@ func checkPosDown(xCrd int, yCrd int, fig figure) bool {
 
 		if tmpY + 1 >= fieldSizeY/unitSize || field[tmpY+1][tmpX] > 0 {
 			addFigureToField(xCrd, yCrd, fig, rotate)
-			speed = 500
+			changeSpeed()
 			checkFillRows()
 			setFigure(figuresArr)
+			scores += 10
+
 			return false
 		}
 	}
@@ -130,5 +132,30 @@ delete filled row
 func deleteRow(row int) {
 	for i := row ; i >= 1 ; i-- {
 		field[i] = field[i-1]
+	}
+	changeLevel()
+}
+
+func changeLevel() {
+
+	linesCount++
+	scores += 100
+
+	if linesCount%1 == 0 {
+
+
+		gameLevel++
+		changeSpeed()
+	}
+}
+
+func changeSpeed() {
+	speedFall = speedStart
+	for i := 0; i < gameLevel; i++ {
+		speedFall -= speedFall / speedLevelChangePercent
+		if speedFall <= 25 {
+			speedFall = 25
+			break
+		}
 	}
 }
